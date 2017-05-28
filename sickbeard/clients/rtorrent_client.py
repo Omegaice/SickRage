@@ -91,8 +91,8 @@ class rTorrentAPI(GenericClient):  # pylint: disable=invalid-name
             return True
 
         except Exception as error:  # pylint: disable=broad-except
-            logger.log('Error while sending torrent: {error}'.format  # pylint: disable=no-member
-                       (error=ex(error)), logger.WARNING)
+            logger.log('Error while sending magnet torrent: {error}'.format  # pylint: disable=no-member
+                       (error=error), logger.WARNING)
             return False
 
     def _add_torrent_file(self, result):
@@ -136,7 +136,7 @@ class rTorrentAPI(GenericClient):  # pylint: disable=invalid-name
 
         except Exception as error:  # pylint: disable=broad-except
             logger.log('Error while sending torrent: {error}'.format  # pylint: disable=no-member
-                       (error=ex(error)), logger.WARNING)
+                       (error=error), logger.WARNING)
             return False
 
     def _set_torrent_ratio(self, name):

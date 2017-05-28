@@ -26,23 +26,6 @@ from rtorrent.common import bool_to_int, convert_version_tuple_to_str,\
 from rtorrent.err import MethodError
 from rtorrent.compat import xmlrpclib
 
-
-def get_varname(rpc_call):
-    """Transform rpc method into variable name.
-
-    @newfield example: Example
-    @example: if the name of the rpc method is 'p.get_down_rate', the variable
-    name will be 'down_rate'
-    """
-    # extract variable name from xmlrpc func name
-    r = re.search(
-        "([ptdf]\.|system\.|get\_|is\_|set\_)+([^=]*)", rpc_call, re.I)
-    if r:
-        return(r.groups()[-1])
-    else:
-        return(None)
-
-
 def _handle_unavailable_rpc_method(method, rt_obj):
     msg = "Method isn't available."
     if rt_obj._get_client_version_tuple() < method.min_version:
@@ -79,33 +62,18 @@ class Method:
         self.required_args = []
             #: Arguments required when calling the method (not utilized)
 
-        self.method_type = self._get_method_type()
-
         if self.varname is None:
-            self.varname = get_varname(self.rpc_call)
+            self.varname = self.rpc_call.replace(".set","").replace("set_","").replace("get_", "")
         assert self.varname is not None, "Couldn't get variable name."
 
     def __repr__(self):
         return safe_repr("Method(method_name='{0}', rpc_call='{1}')",
                         self.method_name, self.rpc_call)
 
-    def _get_method_type(self):
-        """Determine whether method is a modifier or a retriever"""
-        if self.method_name[:4] == "set_": return('m')  # modifier
-        else:
-            return('r')  # retriever
-
-    def is_modifier(self):
-        if self.method_type == 'm':
-            return(True)
-        else:
-            return(False)
-
     def is_retriever(self):
-        if self.method_type == 'r':
-            return(True)
-        else:
-            return(False)
+        if ".set" in self.rpc_call or "set_" in self.rpc_call:
+            return False
+        return True
 
     def is_available(self, rt_obj):
         if rt_obj._get_client_version_tuple() < self.min_version or \
